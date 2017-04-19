@@ -12,7 +12,9 @@ boxes = cross(rows, cols)
 row_units = [cross(r, cols) for r in rows]
 column_units = [cross(rows, c) for c in cols]
 square_units = [cross(rs, cs) for rs in ('ABC','DEF','GHI') for cs in ('123','456','789')]
+# create diagonal units; 2 lists composing of cells from A1-I9 and cells A9-IA   
 diagonal_units = [[rows[i] + cols[i] for i in range(len(rows))], [rows[i] + cols[len(rows) - 1 - i] for i in range(len(rows))]]
+# add the diagonal units to the unitlists (which will be included in the units and peers lists used through-out the constraint methods)
 unitlist = row_units + column_units + square_units + diagonal_units
 units = dict((s, [u for u in unitlist if s in u]) for s in boxes)
 peers = dict((s, set(sum(units[s],[]))-set([s])) for s in boxes)
@@ -41,32 +43,38 @@ def naked_twins(values):
         the values dictionary with the naked twins eliminated from peers.
     """
 
-    # Find all instances of naked twins
-    # Eliminate the naked twins as possibilities for their peers
-    unsolved_values = [box for box in values.keys() if len(values[box]) > 1]
+    # find all unsolved boxes (unsolved being those boxes with a value len greater than 1 ie boxes that have not been set)
+    unsolved_boxes = [box for box in values.keys() if len(values[box]) > 1]
 
-    for box in unsolved_values:
+    # for each box we will search for matching pairs for each unit and apply the naked twins constraint  
+    for box in unsolved_boxes:
         box_value = values[box]
 
         # currently limiting to 2 values with 2 pairs (as the name suggests but suspect this scales to 2+)
         if len(box_value) != 2:
             continue 
 
+        # search across all units associated with the current box 
         for unit in units[box]:
+        	# find all boxes that have the same value within the unit 
         	matching_peers = [peer for peer in unit if peer != box and values[peer] == box_value]
 
         	# make sure we have enough matching peers for each value 
         	if len(matching_peers) != 1:
         		continue	
 
+        	# find all 'unmatched' boxes within the unit i.e. those boxes that are not the current box, not the matched box, and
+        	# haven't been solved 
         	unmatched_peers = [peer for peer in unit if peer not in matching_peers and peer != box and len(values[peer]) > 1]
 
         	if len(unmatched_peers) == 0:
         		continue  
 
+        	# for each pair, remove any values that are assign to the naked twims 
         	for peer in unmatched_peers:
         		peers_new_value = "".join([value for value in values[peer] if value not in box_value])    
 
+        		# update the value 
         		values[peer] = peers_new_value
         		assign_value(values, peer, peers_new_value)
 
