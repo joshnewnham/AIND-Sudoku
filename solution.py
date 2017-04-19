@@ -12,7 +12,8 @@ boxes = cross(rows, cols)
 row_units = [cross(r, cols) for r in rows]
 column_units = [cross(rows, c) for c in cols]
 square_units = [cross(rs, cs) for rs in ('ABC','DEF','GHI') for cs in ('123','456','789')]
-unitlist = row_units + column_units + square_units
+diagonal_units = [[rows[i] + cols[i] for i in range(len(rows))], [rows[i] + cols[len(rows) - 1 - i] for i in range(len(rows))]]
+unitlist = row_units + column_units + square_units + diagonal_units
 units = dict((s, [u for u in unitlist if s in u]) for s in boxes)
 peers = dict((s, set(sum(units[s],[]))-set([s])) for s in boxes)
 
@@ -64,15 +65,13 @@ def naked_twins(values):
         unmatched_peers = [peer for peer in peers[box] if peer not in matching_peers and peer != box]
 
         if len(unmatched_peers) == 0:
-            continue 
-
-        matched_values = box_value.split() 
+            continue  
 
         for peer in unmatched_peers:
             if len(values[peer]) == 1:
                 continue 
 
-            peers_new_value = "".join([value for value in values[peer].split() if value not in matched_values])    
+            peers_new_value = "".join([value for value in values[peer] if value not in box_value])    
 
             values[peer] = peers_new_value
             assign_value(values, peer, peers_new_value)
@@ -189,7 +188,9 @@ def solve(grid):
 
 if __name__ == '__main__':
     #diag_sudoku_grid = '2.............62....1....7...6..8...3...9...7...6..4...4....8....52.............3'
-    diag_sudoku_grid = '4.....8.5.3..........7......2.....6.....8.4......1.......6.3.7.5..2.....1.4......'    
+    #diag_sudoku_grid = '4.....8.5.3..........7......2.....6.....8.4......1.......6.3.7.5..2.....1.4......'    
+
+    diag_sudoku_grid = '2.............62....1....7...6..8...3...9...7...6..4...4....8....52.............3'
 
     display(solve(diag_sudoku_grid))
 
