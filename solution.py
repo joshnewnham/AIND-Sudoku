@@ -52,29 +52,23 @@ def naked_twins(values):
         if len(box_value) != 2:
             continue 
 
-        matching_peers = []
+        for unit in units[box]:
+        	matching_peers = [peer for peer in unit if peer != box and values[peer] == box_value]
 
-        for peer in peers[box]:
-            if values[peer] == box_value:
-                matching_peers.append(peer)
+        	# make sure we have enough matching peers for each value 
+        	if len(matching_peers) != 1:
+        		continue	
 
-        # make sure we have enough matching peers for each value 
-        if len(matching_peers) != 1:
-            continue         
+        	unmatched_peers = [peer for peer in unit if peer not in matching_peers and peer != box and len(values[peer]) > 1]
 
-        unmatched_peers = [peer for peer in peers[box] if peer not in matching_peers and peer != box]
+        	if len(unmatched_peers) == 0:
+        		continue  
 
-        if len(unmatched_peers) == 0:
-            continue  
+        	for peer in unmatched_peers:
+        		peers_new_value = "".join([value for value in values[peer] if value not in box_value])    
 
-        for peer in unmatched_peers:
-            if len(values[peer]) == 1:
-                continue 
-
-            peers_new_value = "".join([value for value in values[peer] if value not in box_value])    
-
-            values[peer] = peers_new_value
-            assign_value(values, peer, peers_new_value)
+        		values[peer] = peers_new_value
+        		assign_value(values, peer, peers_new_value)
 
     return values 
 
@@ -182,13 +176,19 @@ def solve(grid):
     Returns:
         The dictionary representation of the final sudoku grid. False if no solution exists.
     """
-    values = grid_values(grid)
+    values = grid_values(grid)    
+
+    #print("solving")
+    #print(display(values))
+
     return search(values)
     #return naked_twins(values)
 
 if __name__ == '__main__':
     #diag_sudoku_grid = '2.............62....1....7...6..8...3...9...7...6..4...4....8....52.............3'
     #diag_sudoku_grid = '4.....8.5.3..........7......2.....6.....8.4......1.......6.3.7.5..2.....1.4......'    
+
+    #diag_sudoku_grid = '2.............62....1....7...6..8...3...9...7...6..4...4....8....52.............3'
 
     diag_sudoku_grid = '2.............62....1....7...6..8...3...9...7...6..4...4....8....52.............3'
 
