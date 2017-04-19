@@ -42,6 +42,43 @@ def naked_twins(values):
 
     # Find all instances of naked twins
     # Eliminate the naked twins as possibilities for their peers
+    unsolved_values = [box for box in values.keys() if len(values[box]) > 1]
+
+    for box in unsolved_values:
+        box_value = values[box]
+
+        # currently limiting to 2 values with 2 pairs (as the name suggests but suspect this scales to 2+)
+        if len(box_value) != 2:
+            continue 
+
+        matching_peers = []
+
+        for peer in peers[box]:
+            if values[peer] == box_value:
+                matching_peers.append(peer)
+
+        # make sure we have enough matching peers for each value 
+        if len(matching_peers) != 1:
+            continue         
+
+        unmatched_peers = [peer for peer in peers[box] if peer not in matching_peers and peer != box]
+
+        if len(unmatched_peers) == 0:
+            continue 
+
+        matched_values = box_value.split() 
+
+        for peer in unmatched_peers:
+            if len(values[peer]) == 1:
+                continue 
+
+            peers_new_value = "".join([value for value in values[peer].split() if value not in matched_values])    
+
+            values[peer] = peers_new_value
+            assign_value(values, peer, peers_new_value)
+
+    return values 
+
 
 def grid_values(grid):
     """
@@ -105,6 +142,7 @@ def reduce_puzzle(values):
         solved_values_before = len([box for box in values.keys() if len(values[box]) == 1])
         values = eliminate(values)
         values = only_choice(values)
+        values = naked_twins(values)
         solved_values_after = len([box for box in values.keys() if len(values[box]) == 1])
         stalled = solved_values_before == solved_values_after
         if len([box for box in values.keys() if len(values[box]) == 0]):
@@ -147,17 +185,19 @@ def solve(grid):
     """
     values = grid_values(grid)
     return search(values)
+    #return naked_twins(values)
 
 if __name__ == '__main__':
     #diag_sudoku_grid = '2.............62....1....7...6..8...3...9...7...6..4...4....8....52.............3'
-    diag_sudoku_grid = '4.....8.5.3..........7......2.....6.....8.4......1.......6.3.7.5..2.....1.4......'
+    diag_sudoku_grid = '4.....8.5.3..........7......2.....6.....8.4......1.......6.3.7.5..2.....1.4......'    
+
     display(solve(diag_sudoku_grid))
 
-    try:
-        from visualize import visualize_assignments
-        visualize_assignments(assignments)
+    # try:
+    #     from visualize import visualize_assignments
+    #     visualize_assignments(assignments)
 
-    except SystemExit:
-        pass
-    except:
-        print('We could not visualize your board due to a pygame issue. Not a problem! It is not a requirement.')
+    # except SystemExit:
+    #     pass
+    # except:
+    #     print('We could not visualize your board due to a pygame issue. Not a problem! It is not a requirement.')
