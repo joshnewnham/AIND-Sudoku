@@ -3,11 +3,14 @@
 
 # Question 1 (Naked Twins)
 Q: How do we use constraint propagation to solve the naked twins problem?  
-A: *Student should provide answer here*
+A: For each unsolved box (with 2 possible values), search through each associated unit searching for a matching box (matching meaning a 
+box with the value 2 possible values). If found then, within **that unit**, remove the pairs values from the remaining boxes within 
+that specific unit.   
 
 # Question 2 (Diagonal Sudoku)
 Q: How do we use constraint propagation to solve the diagonal sudoku problem?  
-A: *Student should provide answer here*
+A: Essentially an additional unit being added that needs to be satisfied, in this case it's the diagonal boxes from A1-I9 and A9-I1. This *additional* unit
+is added to the unitlist, which in turn is added as a unit and peers therefore included in the evaluation of the search methods.  
 
 ### Install
 
